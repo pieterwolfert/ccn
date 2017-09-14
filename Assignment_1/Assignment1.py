@@ -19,10 +19,10 @@ class MLP(Chain):
     """
     def __init__(self, n_units, n_out):
         super(MLP, self).__init__()
-        
-        self.l1 = L.Linear(None, n_units) # Input layer n_units -> n_units
-        self.l2 = L.Linear(None, n_units)
-        self.l3 = L.Linear(n_units, n_out)
+        with self.init_scope():
+            self.l1 = L.Linear(None, n_units) # Input layer n_units -> n_units
+            self.l2 = L.Linear(None, n_units)
+            self.l3 = L.Linear(n_units, n_out)
         
     def __call__(self, x):
         h1 = self.l1(x)
@@ -58,7 +58,7 @@ classifier = Classifier(model)
 optimizer = optimizers.SGD()
 optimizer.setup(classifier)
 
-
+# Implement the training loop
 iterator = RandomIterator(train,32)
 
 av_loss = []
