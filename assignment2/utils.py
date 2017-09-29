@@ -13,7 +13,7 @@ def get_mnist(n_train=100, n_test=100, n_dim=1, with_label=True, classes = None)
     :param classes: if not None, then it selects only those classes, e.g. [0, 1]
     :return:
     """
-    print n_dim
+
 
     train_data, test_data = chainer.datasets.get_mnist(ndim=n_dim, withlabel=with_label)
 
