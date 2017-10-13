@@ -16,35 +16,38 @@ from chainer import iterators
        
 class BPTTUpdater(chainer.training.StandardUpdater):
 
-    def __init__(self, train_iter, optimizer, bprop_len):
+    def __init__(self, train_iter, optimizer, bprop_len, rnn):
         super(BPTTUpdater, self).__init__(train_iter, optimizer)
         self.bprop_len = bprop_len
 
     # The core part of the update routine can be customized by overriding.
     def update_core(self):
-        loss = 0
+        train_loss = []
         # When we pass one iterator and optimizer to StandardUpdater.__init__,
         # they are automatically named 'main'.
         train_iter = self.get_iterator('main')
         optimizer = self.get_optimizer('main')
-
-        # Progress the dataset iterator for bprop_len words at each iteration.
+        count = 0
+        loss = 0
+        # Progress the dataset iterator for bprop_len 
         for i in range(self.bprop_len):
-            # Get the next batch (a list of tuples of two word IDs)
+            count += 1
+            # Get the next batch 
             batch = train_iter.__next__()
-
-            # Concatenate the word IDs to matrices and send them to the device
-            # self.converter does this job
-            # (it is chainer.dataset.concat_examples by default)
+            
             x, t = self.converter(batch)
-
+            rnn.reset_state()
             # Compute the loss at this time step and accumulate it
             loss += optimizer.target(chainer.Variable(x), chainer.Variable(t))
-
-        optimizer.target.cleargrads()  # Clear the parameter gradients
-        loss.backward()  # Backprop
-        optimizer.update()  # Update the parameters
-        return loss
+        
+            if count % 10 == 0:
+                optimizer.target.cleargrads()  # Clear the parameter gradients
+                loss.backward()  # Backprop
+                loss.unchain_backward()
+                optimizer.update()  # Update the parameters
+                train_loss.append(loss)
+                        
+        return train_loss
         
         
 class RNN(Chain):
@@ -78,7 +81,7 @@ class Regressor(Chain):
 
     def __call__(self, x, t):
         y = self.predictor(x)
-        loss = F.mean_squared_error(x, y)
+        loss = F.mean_squared_error(y, t)
         return loss
 
 
@@ -88,10 +91,11 @@ def compute_loss(inputs, labels, model):
 
 
 def create_data(n=3000):
-    X = np.random.rand(n, 1).astype('float32')
-    T = np.sum(np.hstack((X[0:-1], X[1:])), axis=1)
+
+    X = np.random.rand(n,1).astype('float32')
+    T = np.sum(np.hstack((X[0:-1],X[1:])),axis=1)
     T = np.hstack([0, T[0:]]).astype('float32')
-    T = T.reshape([n, 1])
+    T = T.reshape([n,1])
 
     return TupleDataset(X, T)
 
@@ -114,17 +118,23 @@ train_data = create_data()
 test_data = create_data()
 inputs, labels = np.array([tup[0] for tup in test_data]), np.array([tup[1] for tup in test_data])
 
-train_iter = iterators.SerialIterator(train_data, 32)
+train_iter = iterators.SerialIterator(train_data, 1)
 rnn = RNN()
 regressor = Regressor(rnn)
 optimizer = chainer.optimizers.SGD()
 optimizer.setup(regressor)
-updater = BPTTUpdater(train_iter, optimizer,3)
+updater = BPTTUpdater(train_iter, optimizer,3000, rnn)
 train_loss, test_loss = [], []
-for i in range(50):
-    train_loss.append(updater.update_core().data)
-    rnn.reset_state()
-    test_loss.append(compute_loss(inputs, labels, regressor).data)
-    
 
-visualize_loss(train_loss, test_loss, nr_epochs=50)
+
+train_loss = updater.update_core()
+#rnn.reset_state()
+#test_loss.append(compute_loss(inputs, labels, regressor).data)
+    
+rnn.reset_state()
+#visualize_loss(train_loss, test_loss, nr_epochs=3000)
+new_inputs = inputs[1:100]
+pred_inputs = rnn(new_inputs).data
+actual_inputs = labels[1:100]
+plt.plot(pred_inputs, 'b')
+plt.plot(actual_inputs, 'r')
