@@ -91,4 +91,5 @@ e_test, l_test = [point['epoch'] for point in test_loss], [point['loss'] for poi
 plt.plot(e_train, l_train, 'b')
 plt.plot(e_test, l_test, 'r')
 plt.show() 
+print(labels.shape)
      

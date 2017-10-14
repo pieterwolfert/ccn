@@ -121,20 +121,25 @@ inputs, labels = np.array([tup[0] for tup in test_data]), np.array([tup[1] for t
 train_iter = iterators.SerialIterator(train_data, 1)
 rnn = RNN()
 regressor = Regressor(rnn)
-optimizer = chainer.optimizers.SGD()
+optimizer = chainer.optimizers.SGD(lr = 0.05)
 optimizer.setup(regressor)
 updater = BPTTUpdater(train_iter, optimizer,3000, rnn)
 train_loss, test_loss = [], []
 
 
 train_loss = updater.update_core()
-#rnn.reset_state()
-#test_loss.append(compute_loss(inputs, labels, regressor).data)
+rnn.reset_state()
+test_loss.append(compute_loss(inputs, labels, regressor).data)
     
 rnn.reset_state()
 #visualize_loss(train_loss, test_loss, nr_epochs=3000)
 new_inputs = inputs[1:100]
 pred_inputs = rnn(new_inputs).data
 actual_inputs = labels[1:100]
-plt.plot(pred_inputs, 'b')
-plt.plot(actual_inputs, 'r')
+pred = plt.plot(pred_inputs, 'b', label = "predicted inputs")
+actual = plt.plot(actual_inputs, 'r', label = "actual inputs")
+plt.legend([pred, actual],['predicted inputs', 'actual inputs'])
+
+plt.show()
+print(labels.shape)
+print(inputs.shape)
