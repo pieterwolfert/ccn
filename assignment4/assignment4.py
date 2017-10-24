@@ -7,9 +7,9 @@ labels = data['labels']
 X = data['X']
 Y = data['Y']
 # TODO: compute pixel mean and voxel mean
-pixel_mean = np.array(1,784)
-num_images = X.shape([0])
-voxel_mean = np.array(1,3092)
+pixel_mean = np.zeros((1,784))
+num_images = X.shape[0]
+voxel_mean = np.zeros((1,3092))
 for i in range(num_images):
     pixel_mean += X[i,:]/num_images
     voxel_mean += Y[i,:]/num_images
@@ -20,7 +20,6 @@ X_train, X_test = np.concatenate((X_norm[10:50,:], X_norm[50:90,:])), np.concate
 Y_train, Y_test = np.concatenate((Y_norm[10:50,:], Y_norm[50:90,:])), np.concatenate((Y_norm[0:10,:], Y_norm[90:-1,:]))
 
 # Excercise 1
-
 I_l = np.mat(10**-6 * np.identity(3092))
 B = inv(np.mat(Y_train).T * np.mat(Y_train) + I_l) * np.mat(Y_train).T * np.mat(X_train)
 
