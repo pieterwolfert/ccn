@@ -47,3 +47,11 @@ for i in range(19):
     image = np.reshape(X_test[i,:],(28,28)).T
     sub = fig.add_subplot(4,5,i+1)
     sub.imshow(image)
+
+# Excercise 2
+sigma = np.mat(10**-3 *np.identity(784))
+sigma_prior = (np.mat(X_normp).T * np.mat(X_normp)) / (np.shape(X_prior)[0] - 1)
+# add regularisation
+sigma_prior += np.mat(10**-6*np.identity(784))
+fig = plt.figure(figsize=(6,6))
+plt.imshow(sigma_prior)
