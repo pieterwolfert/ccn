@@ -50,8 +50,19 @@ for i in range(19):
 
 # Excercise 2
 sigma = np.mat(10**-3 *np.identity(784))
+lI = np.mat(10**-6*np.identity(784))
 sigma_prior = (np.mat(X_normp).T * np.mat(X_normp)) / (np.shape(X_prior)[0] - 1)
 # add regularisation
-sigma_prior += np.mat(10**-6*np.identity(784))
+sigma_prior += np.mat(10**-4*np.identity(784))
 fig = plt.figure(figsize=(6,6))
 plt.imshow(sigma_prior)
+B = inv(np.mat(X_train).T*X_train +lI)*np.mat(X_train).T*np.mat(Y_train)
+p1 = inv(inv(sigma_prior) + (B.T*inv(sigma)).T*B.T)
+mu_post = ((p1*B).T*inv(sigma)).T*np.mat(Y_test).T
+mu_post = np.array(mu_post).T*X_std + X_mean
+
+fig = plt.figure(figsize=(6,6))
+for i in range(19):
+    image = np.reshape(mu_post[i,:].T,(28,28)).T
+    sub = fig.add_subplot(4,5,i+1)
+    sub.imshow(image)
