@@ -49,7 +49,7 @@ run(X_train, X_test, y_train, y_test, shakespear_title)
 
 # Reddit data
 X, y = getSentenceData('data/reddit-comments-2015-08.csv', word_dim)
-X_train, X_test, y_train, y_test = X[:5000], X[2000:21500], y[:5000], y[20000:21500]
+X_train, X_test, y_train, y_test = X[:5000], X[20000:21500], y[:5000], y[20000:21500]
 reddit_title = 'Loss on Reddit Comments'
 np.random.seed(10)
 run(X_train, X_test, y_train, y_test, reddit_title)
