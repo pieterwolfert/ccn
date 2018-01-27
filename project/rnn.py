@@ -1,21 +1,20 @@
 from datetime import datetime
 import numpy as np
 import sys
-from layer import RNNLayer, FeedBackLayer
+from layer import BackPropLayer, FeedBackLayer, DirectFeedBackLayer
 from output import Softmax
-from preprocessing import invert
-alphabet = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', ' ']
+
 class Model:
-    def __init__(self, word_dim, hidden_dim=100, bptt_truncate=4, feedback=False):
+    def __init__(self, word_dim, hidden_dim=100, bptt_truncate=4, mode='backprop'):
         self.word_dim = word_dim
         self.hidden_dim = hidden_dim
         self.bptt_truncate = bptt_truncate
-        self.feedback = feedback
-        print(self.feedback)
+        self.mode = mode
+      
         self.U = np.random.uniform(-np.sqrt(1. / word_dim), np.sqrt(1. / word_dim), (hidden_dim, word_dim))
         self.W = np.random.uniform(-np.sqrt(1. / hidden_dim), np.sqrt(1. / hidden_dim), (hidden_dim, hidden_dim))
         self.V = np.random.uniform(-np.sqrt(1. / hidden_dim), np.sqrt(1. / hidden_dim), (word_dim, hidden_dim))
-        if self.feedback:
+        if self.mode is 'fa' or self.mode is 'dfa':
             self.B1 = np.random.uniform(-np.sqrt(1. / word_dim), np.sqrt(1. / word_dim), (hidden_dim, word_dim))
             self.B2 = np.random.uniform(-np.sqrt(1. / hidden_dim), np.sqrt(1. / hidden_dim), (hidden_dim, hidden_dim))
             self.B3 = np.random.uniform(-np.sqrt(1. / hidden_dim), np.sqrt(1. / hidden_dim), (word_dim, hidden_dim))
@@ -31,10 +30,12 @@ class Model:
         prev_s = np.zeros(self.hidden_dim)
         # For each time step...
         for t in range(T):
-            if self.feedback:
+            if self.mode is 'fa':
                 layer = FeedBackLayer(self.B1, self.B2, self.B3)
+            elif self.mode is 'dfa':
+                layer = DirectFeedBackLayer(self.B1, self.B2, self.B3)
             else:
-                layer = RNNLayer()
+                layer = BackPropLayer()
             input = np.zeros(self.word_dim)
             input[x[t]] = 1
             layer.forward(input, prev_s, self.U, self.W, self.V)
@@ -61,6 +62,7 @@ class Model:
         for i in range(len(Y)):
             loss += self.calculate_loss(X[i], Y[i])
         return loss / float(len(Y))
+    
     
     def bptt(self, x, y):
         assert len(x) == len(y)
@@ -103,7 +105,7 @@ class Model:
     def train(self, X, Y, learning_rate=0.005, nepoch=100, evaluate_loss_after=5):
         num_examples_seen = 0
         losses = []
-        for epoch in range(nepoch):
+        for epoch in range(1, nepoch + 1):
             if (epoch % evaluate_loss_after == 0):
                 loss = self.calculate_total_loss(X, Y)
                 losses.append((num_examples_seen, loss))

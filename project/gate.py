@@ -1,5 +1,5 @@
 import numpy as np
-from numba import vectorize
+
 
 class MultiplyGate:
     def forward(self,W, x):
