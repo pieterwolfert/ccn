@@ -5,6 +5,9 @@ from layer import BackPropLayer, FeedBackLayer, DirectFeedBackLayer
 from output import Softmax
 
 class Model:
+    """
+    Class for constructing a recurrent neural network.
+    """
     def __init__(self, word_dim, hidden_dim=100, bptt_truncate=4, mode='backprop'):
         self.word_dim = word_dim
         self.hidden_dim = hidden_dim
@@ -24,6 +27,7 @@ class Model:
         for example x = [0, 179, 341, 416], then its y = [179, 341, 416, 1]
     '''
     def forward_propagation(self, x):
+    """Method for the forward propagation."""
         # The total number of time steps
         T = len(x)
         layers = []
@@ -44,11 +48,13 @@ class Model:
         return layers
 
     def predict(self, x):
+    """Calculate the predictions given data x."""
         output = Softmax()
         layers = self.forward_propagation(x)
         return [np.argmax(output.predict(layer.mulv)) for layer in layers]
 
     def calculate_loss(self, x, y):
+    """Calculate the loss."""
         assert len(x) == len(y)
         output = Softmax()
         layers = self.forward_propagation(x)
@@ -58,6 +64,7 @@ class Model:
         return loss / float(len(y))
 
     def calculate_total_loss(self, X, Y):
+    """Calculate the total loss for the whole task."""
         loss = 0.0
         for i in range(len(Y)):
             loss += self.calculate_loss(X[i], Y[i])
@@ -65,6 +72,12 @@ class Model:
     
     
     def bptt(self, x, y):
+    """Backpropagation through time method.
+
+    Keyword arguments:
+    x -- training data
+    y -- training labels
+    """
         assert len(x) == len(y)
         output = Softmax()
         layers = self.forward_propagation(x)
@@ -97,12 +110,14 @@ class Model:
     
     
     def sgd_step(self, x, y, learning_rate):
+    """Stochastic gradient descent."""
         dU, dW, dV = self.bptt(x, y)
         self.U -= learning_rate * dU
         self.V -= learning_rate * dV
         self.W -= learning_rate * dW
 
     def train(self, X, Y, learning_rate=0.005, nepoch=100, evaluate_loss_after=5):
+    """Training loop for the model."""
         num_examples_seen = 0
         losses = []
         for epoch in range(1, nepoch + 1):

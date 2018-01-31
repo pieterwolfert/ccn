@@ -6,7 +6,9 @@ activation = Tanh()
 
 
 class BackPropLayer:
+    """Class for implementing a backpropagation layer."""
     def forward(self, x, prev_s, U, W, V):
+        """Forward pass method."""
         self.mulu = mulGate.forward(U, x)
         self.mulw = mulGate.forward(W, prev_s)
         self.add = addGate.forward(self.mulw, self.mulu)
@@ -14,6 +16,7 @@ class BackPropLayer:
         self.mulv = mulGate.forward(V, self.s)
         
     def backward(self, x, prev_s, U, W, V, diff_s, dmulv):
+        """Backward pass method."""
         self.forward(x, prev_s, U, W, V)
         dV, dsv = mulGate.backward(V, self.s, dmulv)
         ds = dsv + diff_s
@@ -25,6 +28,7 @@ class BackPropLayer:
     
     
 class FeedBackLayer:
+    """Feedback Alignment layer (see Nøkland 2016)"""
     def __init__(self, B1, B2, B3):
         self.B1 = B1
         self.B2 = B2
@@ -50,6 +54,7 @@ class FeedBackLayer:
 
 
 class DirectFeedBackLayer:
+    """Direct feedback alignment (see Nøkland 2016)"""
     def __init__(self, B1, B2, B3):
         self.B1 = B1
         self.B2 = B2

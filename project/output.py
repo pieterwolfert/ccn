@@ -1,6 +1,7 @@
 import numpy as np
 
 class Softmax:
+    """Softmax activation class."""
     def predict(self, x):
         exp_scores = np.exp(x)
         return exp_scores / np.sum(exp_scores)

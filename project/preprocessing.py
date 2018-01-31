@@ -4,7 +4,14 @@ import itertools
 import nltk
 from math import ceil
 from math import log10
+
 def getSentenceData(path, vocabulary_size=8000):
+    """Load sentences from a given datafile.
+    
+    Keyword arguments:
+    path -- path to sentence datafile
+    vocabulary_size -- size of the vocabulary to be used.
+    """
     unknown_token = "UNKNOWN_TOKEN"
     sentence_start_token = "SENTENCE_START"
     sentence_end_token = "SENTENCE_END"
@@ -60,8 +67,8 @@ def getSentenceData(path, vocabulary_size=8000):
 
     return X_train, y_train
 
-# convert data to strings
 def to_string(X, y, n_numbers, largest):
+    """Convert data to strings."""
 	max_length = n_numbers * ceil(log10(largest+1)) + n_numbers - 1
 	Xstr = list()
 	for pattern in X:
@@ -76,8 +83,8 @@ def to_string(X, y, n_numbers, largest):
 		ystr.append(strp)
 	return Xstr, ystr
 
-# integer encode strings
 def integer_encode(X, y, alphabet):
+    """Encode strings to integers."""
 	char_to_int = dict((c, i) for i, c in enumerate(alphabet))
 	Xenc = list()
 	for pattern in X:
@@ -89,8 +96,8 @@ def integer_encode(X, y, alphabet):
 		yenc.append(integer_encoded)
 	return Xenc, yenc
 
-# one hot encode
 def one_hot_encode(X, y, max_int):
+    """One hot encode input data."""
 	Xenc = list()
 	for seq in X:
 		pattern = list()
@@ -109,8 +116,8 @@ def one_hot_encode(X, y, max_int):
 		yenc.append(pattern)
 	return Xenc, yenc
 
-# invert encoding
 def invert(seq, alphabet):
+    """Invert encoding, from integer sequences to sequences of characters."""
 	int_to_char = dict((i, c) for i, c in enumerate(alphabet))
 	strings = list()
 	for pattern in seq:
