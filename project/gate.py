@@ -1,6 +1,7 @@
 import numpy as np
 
 class MultiplyGate:
+    """Multiplication Gate in LSTM-layer."""
     def forward(self,W, x):
         return np.dot(W, x)
 
@@ -10,6 +11,7 @@ class MultiplyGate:
         return dW, dx
 
 class AddGate:
+    """Add Gate in LSTM-layer."""
     def forward(self, x1, x2):
         return x1 + x2
 

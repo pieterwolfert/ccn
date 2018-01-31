@@ -69,61 +69,61 @@ def getSentenceData(path, vocabulary_size=8000):
 
 def to_string(X, y, n_numbers, largest):
     """Convert data to strings."""
-	max_length = n_numbers * ceil(log10(largest+1)) + n_numbers - 1
-	Xstr = list()
-	for pattern in X:
-		strp = '+'.join([str(n) for n in pattern])
-		strp = ''.join([' ' for _ in range(max_length-len(strp))]) + strp
-		Xstr.append(strp)
-	max_length = ceil(log10(n_numbers * (largest+1)))
-	ystr = list()
-	for pattern in y:
-		strp = str(pattern)
-		strp = ''.join([' ' for _ in range(max_length-len(strp))]) + strp
-		ystr.append(strp)
-	return Xstr, ystr
+    max_length = n_numbers * ceil(log10(largest+1)) + n_numbers - 1
+    Xstr = list()
+    for pattern in X:
+        strp = '+'.join([str(n) for n in pattern])
+        strp = ''.join([' ' for _ in range(max_length-len(strp))]) + strp
+        Xstr.append(strp)
+    max_length = ceil(log10(n_numbers * (largest+1)))
+    ystr = list()
+    for pattern in y:
+        strp = str(pattern)
+        strp = ''.join([' ' for _ in range(max_length-len(strp))]) + strp
+        ystr.append(strp)
+    return Xstr, ystr
 
 def integer_encode(X, y, alphabet):
     """Encode strings to integers."""
-	char_to_int = dict((c, i) for i, c in enumerate(alphabet))
-	Xenc = list()
-	for pattern in X:
-		integer_encoded = [char_to_int[char] for char in pattern]
-		Xenc.append(integer_encoded)
-	yenc = list()
-	for pattern in y:
-		integer_encoded = [char_to_int[char] for char in pattern]
-		yenc.append(integer_encoded)
-	return Xenc, yenc
+    char_to_int = dict((c, i) for i, c in enumerate(alphabet))
+    Xenc = list()
+    for pattern in X:
+	    integer_encoded = [char_to_int[char] for char in pattern]
+	    Xenc.append(integer_encoded)
+    yenc = list()
+    for pattern in y:
+        integer_encoded = [char_to_int[char] for char in pattern]
+        yenc.append(integer_encoded)
+    return Xenc, yenc
 
 def one_hot_encode(X, y, max_int):
     """One hot encode input data."""
-	Xenc = list()
-	for seq in X:
-		pattern = list()
-		for index in seq:
-			vector = [0 for _ in range(max_int)]
-			vector[index] = 1
-			pattern.append(vector)
-		Xenc.append(pattern)
-	yenc = list()
-	for seq in y:
-		pattern = list()
-		for index in seq:
-			vector = [0 for _ in range(max_int)]
-			vector[index] = 1
-			pattern.append(vector)
-		yenc.append(pattern)
-	return Xenc, yenc
+    Xenc = list()
+    for seq in X:
+	    pattern = list()
+	    for index in seq:
+		    vector = [0 for _ in range(max_int)]
+		    vector[index] = 1
+		    pattern.append(vector)
+	    Xenc.append(pattern)
+    yenc = list()
+    for seq in y:
+        pattern = list()
+        for index in seq:
+            vector = [0 for _ in range(max_int)]
+            vector[index] = 1
+            pattern.append(vector)
+            yenc.append(pattern)
+        return Xenc, yenc
 
 def invert(seq, alphabet):
     """Invert encoding, from integer sequences to sequences of characters."""
-	int_to_char = dict((i, c) for i, c in enumerate(alphabet))
-	strings = list()
-	for pattern in seq:
-		string = int_to_char[np.argmax(pattern)]
-		strings.append(string)
-	return ''.join(strings)
+    int_to_char = dict((i, c) for i, c in enumerate(alphabet))
+    strings = list()
+    for pattern in seq:
+        string = int_to_char[np.argmax(pattern)]
+        strings.append(string)
+    return ''.join(strings)
 
 if __name__ == '__main__':
     X_train, y_train = getSentenceData('data/reddit-comments-2015-08.csv')
